@@ -1,10 +1,10 @@
 {
   "name": "@better-scroll/zoom",
-  "version": "2.0.5",
+  "version": "2.2.1",
   "description": "a BetterScroll plugin to enlarge or narrow",
   "author": {
-    "name": "huangyi",
-    "email": "ustbhuangyi@gmail.com"
+    "name": "jizhi",
+    "email": "theniceangel@163.com"
   },
   "main": "dist/zoom.min.js",
   "module": "dist/zoom.esm.js",
@@ -32,7 +32,7 @@
     "directory": "packages/zoom"
   },
   "dependencies": {
-    "@better-scroll/core": "^2.0.5"
+    "@better-scroll/core": "^2.2.1"
   },
   "gitHead": "f441227b6137d44ba0b44b97ed4cd49de9386130"
 }

@@ -1,10 +1,10 @@
 {
   "name": "@better-scroll/core",
-  "version": "2.0.5",
+  "version": "2.2.1",
   "description": "Minimalistic core scrolling for BetterScroll, it is pure and tiny",
   "author": {
-    "name": "huangyi",
-    "email": "ustbhuangyi@gmail.com"
+    "name": "jizhi",
+    "email": "theniceangel@163.com"
   },
   "publishConfig": {
     "access": "public"
@@ -31,7 +31,7 @@
     "directory": "packages/core"
   },
   "dependencies": {
-    "@better-scroll/shared-utils": "^2.0.5"
+    "@better-scroll/shared-utils": "^2.2.1"
   },
   "gitHead": "f441227b6137d44ba0b44b97ed4cd49de9386130"
 }

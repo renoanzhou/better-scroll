@@ -27,12 +27,12 @@
 ### maxScrollY
   - **类型**：number
   - **作用**：bs 最大纵向滚动位置。
-  - **备注**：bs 纵向滚动的位置区间是 [minScrollY, maxScrollY]，并且 maxScrollY 是负值，maxScrollY 是正值。
+  - **备注**：bs 纵向滚动的位置区间是 [minScrollY, maxScrollY]，并且 maxScrollY 是负值。
 
 ### minScrollY
   - **类型**：number
   - **作用**：bs 最小纵向滚动位置。
-  - **备注**：bs 纵向滚动的位置区间是 [minScrollY, maxScrollY]，并且 minScrollY 是正值
+  - **备注**：bs 纵向滚动的位置区间是 [minScrollY, maxScrollY]，并且 minScrollY 是正值。
 
 ### movingDirectionX
   - **类型**：number
@@ -77,7 +77,7 @@ BetterScroll 提供了很多灵活的 API，当我们基于 BetterScroll 去实�
      - {number} y 纵轴坐标（单位 px）
      - {number} time 滚动动画执行的时长（单位 ms）
      - {Object} easing 缓动函数，一般不建议修改，如果想修改，参考源码中的 `packages/shared-utils/src/ease.ts` 里的写法
-     - 只有在你想要修改 CSS transform 的一些其他属性的时候，你才需要传入此参数，结构如下：
+     - {Object} extraTransform，只有在你想要修改 CSS transform 的一些其他属性的时候，你才需要传入此参数，结构如下：
      ```js
      let extraTransform = {
        // 起点的属性
@@ -89,7 +89,10 @@ BetterScroll 提供了很多灵活的 API，当我们基于 BetterScroll 去实�
          scale: 1.1
        }
      }
+     bs.scrollTo(0, -60, 300, undefined, extraTransform)
      ```
+   - **返回值**：无
+   - **作用**：相对于当前位置偏移滚动 x,y 的距离。
 
 ### scrollBy(x, y, time, easing)
    - **参数**：
@@ -303,13 +306,13 @@ BetterScroll 提供了很多灵活的 API，当我们基于 BetterScroll 去实�
     ```js
       bs.on('destroy', () => {})
     ```
-  - **contentChanged**<sup>(2.0.4)</sup>
+  - **contentChanged** <Badge text='2.0.4' />
     - **触发时机**：在调用 `bs.refresh()`，探测到 content DOM 变成了其他元素的时候
 
     ```typescript
       // bs 版本 >= 2.0.4
       bs.on('contentChanged', (newContent: HTMLElement) => {})
-    ```  
+    ```
 
 以下的事件必须注册括号中的**插件**才会派发：
 
@@ -519,7 +522,7 @@ BetterScroll 提供了很多灵活的 API，当我们基于 BetterScroll 去实�
         bs.hooks.on('destroy', () => { console.log('destroyed') })
       ```
 
-    - **contentChanged**<sup>(2.0.4)</sup>
+    - **contentChanged** <Badge text='2.0.4' />
       - **触发时机**：在调用 `bs.refresh()`，探测到 content DOM 变成了其他元素的时候
       - **示例**
       ```typescript
@@ -528,7 +531,7 @@ BetterScroll 提供了很多灵活的 API，当我们基于 BetterScroll 去实�
         // bs 版本 >= 2.0.4
         bs.hooks.on('contentChanged', (newContent: HTMLElement) => { console.log(newContent) })
       ```
-      
+
   - **ActionsHandler.hooks**
 
     - **beforeStart**

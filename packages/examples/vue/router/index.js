@@ -15,6 +15,13 @@ import NestedScrollEntry from 'vue-example/pages/nested-scroll-entry'
 import MovableEntry from 'vue-example/pages/movable-entry'
 import MouseWheelEntry from 'vue-example/pages/mouse-wheel-entry'
 import ComposeEntry from 'vue-example/pages/compose-entry'
+import ObserveImageEntry from 'vue-example/pages/observe-image-entry'
+import IndicatorsEntry from 'vue-example/pages/indicators-entry'
+
+import ScrollbarVertical from 'vue-example/components/scrollbar/vertical'
+import ScrollbarHorizontal from 'vue-example/components/scrollbar/horizontal'
+import ScrollbarCustom from 'vue-example/components/scrollbar/custom'
+import ScrollbarMouseWheel from 'vue-example/components/scrollbar/mousewheel'
 
 import MouseWheelVerticalScroll from 'vue-example/components/mouse-wheel/vertical-scroll'
 import MouseWheelHorizontalScroll from 'vue-example/components/mouse-wheel/horizontal-scroll'
@@ -27,6 +34,7 @@ import MouseWheelPicker from 'vue-example/components/mouse-wheel/picker'
 import BannerSlide from 'vue-example/components/slide/banner'
 import PageSlide from 'vue-example/components/slide/fullpage'
 import VerticalSlide from 'vue-example/components/slide/vertical'
+import DynamicSlide from 'vue-example/components/slide/dynamic'
 
 import VerticalScroll from 'vue-example/components/core/default'
 import HorizontalScroll from 'vue-example/components/core/horizontal'
@@ -41,6 +49,7 @@ import LinkageColumnPicker from 'vue-example/components/picker/linkage-column'
 import FormTextarea from 'vue-example/components/form/textarea'
 
 import NestedVerticalScroll from 'vue-example/components/nested-scroll/vertical'
+import NestedTripleVerticalScroll from 'vue-example/components/nested-scroll/triple-vertical'
 import NestedHorizontalScroll from 'vue-example/components/nested-scroll/horizontal'
 import NestedHorizontalInVertical from 'vue-example/components/nested-scroll/horizontal-in-vertical'
 
@@ -53,6 +62,9 @@ import ComposePullUpPullDown from 'vue-example/components/compose/pullup-pulldow
 import ComposePullUpPullDownSlide from 'vue-example/components/compose/pullup-pulldown-slide'
 import ComposePullUpPullDownNested from 'vue-example/components/compose/pullup-pulldown-outnested'
 import ComposeSlideNested from 'vue-example/components/compose/slide-nested'
+
+import IndicatorsMinimap from 'vue-example/components/indicators/minimap'
+import IndicatorsParallaxScroll from 'vue-example/components/indicators/parallax-scroll'
 Vue.use(Router)
 
 export default new Router({
@@ -80,6 +92,10 @@ export default new Router({
         {
           path: 'vertical',
           component: VerticalSlide,
+        },
+        {
+          path: 'dynamic',
+          component: DynamicSlide,
         },
       ],
     },
@@ -172,6 +188,24 @@ export default new Router({
     {
       path: '/scrollbar',
       component: ScrollBarEntry,
+      children: [
+        {
+          path: 'vertical',
+          component: ScrollbarVertical
+        },
+        {
+          path: 'horizontal',
+          component: ScrollbarHorizontal
+        },
+        {
+          path: 'custom',
+          component: ScrollbarCustom
+        },
+        {
+          path: 'mousewheel',
+          component: ScrollbarMouseWheel
+        }
+      ]
     },
     {
       path: '/infinity',
@@ -203,6 +237,10 @@ export default new Router({
           path: 'horizontal-in-vertical',
           component: NestedHorizontalInVertical,
         },
+        {
+          path: 'triple-vertical',
+          component: NestedTripleVerticalScroll,
+        }
       ],
     },
     {
@@ -249,5 +287,23 @@ export default new Router({
         }
       ],
     },
+    {
+      path: '/observe-image',
+      component: ObserveImageEntry
+    },
+    {
+      path: '/indicators',
+      component: IndicatorsEntry,
+      children: [
+        {
+          path: 'minimap',
+          component: IndicatorsMinimap
+        },
+        {
+          path: 'parallax-scroll',
+          component: IndicatorsParallaxScroll
+        }
+      ]
+    }
   ],
 })

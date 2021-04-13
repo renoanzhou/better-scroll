@@ -36,6 +36,10 @@ const examples = [
     path: '/observe-dom/'
   },
   {
+    name: 'observe-image',
+    path: '/observe-image/'
+  },
+  {
     name: 'slide',
     path: '/slide/'
   },
@@ -58,6 +62,10 @@ const examples = [
   {
     name: 'scrollbar',
     path: '/scrollbar/'
+  },
+  {
+    name: 'indicators',
+    path: '/indicators/'
   },
   {
     name: 'infinity',
@@ -99,8 +107,6 @@ export default {
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
-@import '~common/stylus/variable.styl'
-
 .page-header
   h1
     @media screen and (min-width 42rem)
@@ -128,7 +134,7 @@ export default {
     margin 1rem 0
 
   .example-item
-    background-color $color-white
+    background-color white
     padding 0.8rem
     border 1px solid rgba(0, 0, 0, 0.1)
     box-shadow 0 1px 2px 0 rgba(0, 0, 0, 0.1)
@@ -156,7 +162,7 @@ export default {
   right 0
   z-index 1
   padding 20px
-  background #fff
+  background white
   transform translate3d(0, 0, 0)
 
   &.move-enter, &.move-leave-active

@@ -127,39 +127,49 @@
     data() {
       return {
         state: STATE_HIDE,
-        selectedIndex: [0, 0],
+        selectedIndexPair: [0, 0],
         selectedText: 'open',
         pickerData: [DATA1, DATA2]
       }
     },
     methods: {
       _confirm() {
-        if (this._isMoving()) {
-          return
-        }
+        this.wheels.forEach(wheel => {
+          /*
+          * if bs is scrolling, force it stop at the nearest wheel-item
+          * or you can use 'restorePosition' method as the below
+          */
+          // wheel.stop()
+          /*
+          * if bs is scrolling, restore it to the start position
+          * it is same with iOS picker and web Select element implementation
+          * supported at v2.1.0
+          */
+          wheel.restorePosition()
+        })
         this.hide()
 
-        const currentSelectedIndex = this.selectedIndex = this.wheels.map(wheel => {
+        const currentSelectedIndexPair = this.selectedIndexPair = this.wheels.map(wheel => {
           return wheel.getSelectedIndex()
         })
 
-        // store array for preventing multi-collecting array dependencies in Vue source code
-        const pickerData = this.pickerData
-        const currentSelectedValue =
-              this.selectedText =
-              pickerData.map((data, index) => {
-                return data[currentSelectedIndex[index]].text
-              }).join('-')
-        this.$emit(EVENT_SELECT, currentSelectedIndex, currentSelectedValue)
+        this.selectedText = this.pickerData.map((data, i) => {
+          const index = currentSelectedIndexPair[i]
+          return `${data[index].text}-${index}`
+        }).join('__')
+        this.$emit(EVENT_SELECT, currentSelectedIndexPair)
       },
       _cancel() {
+        /*
+         * if bs is scrolling, restore it to the start position
+         * it is same with iOS picker and web Select element implementation
+         * supported at v2.1.0
+        */
+        this.wheels.forEach(wheel => {
+          wheel.restorePosition()
+        })
         this.hide()
         this.$emit(EVENT_CANCEL)
-      },
-      _isMoving() {
-        return this.wheels.some((wheel) => {
-          return wheel.pending
-        })
       },
       show() {
         if (this.state === STATE_SHOW) {
@@ -176,33 +186,16 @@
               this._createWheel(wheelWrapper, i)
             }
           })
-        } else {
-          for (let i = 0; i < this.pickerData.length; i++) {
-            this.wheels[i].enable()
-            this.wheels[i].wheelTo(this.selectedIndex[i])
-          }
         }
       },
       hide() {
         this.state = STATE_HIDE
-
-        for (let i = 0; i < this.pickerData.length; i++) {
-          // if wheel is in animation, clear timer in it
-          this.wheels[i].disable()
-        }
-      },
-      refresh() {
-        this.$nextTick(() => {
-          this.wheels.forEach((wheel, index) => {
-            wheel.refresh()
-          })
-        })
       },
       _createWheel(wheelWrapper, i) {
         if (!this.wheels[i]) {
           this.wheels[i] = new BScroll(wheelWrapper.children[i], {
             wheel: {
-              selectedIndex: this.selectedIndex[i],
+              selectedIndex: this.selectedIndexPair[i],
               wheelWrapperClass: 'wheel-scroll',
               wheelItemClass: 'wheel-item'
             },
@@ -227,6 +220,47 @@
   ul
     list-style none
     padding 0
+
+  .border-bottom-1px, .border-top-1px
+    position: relative
+    &:before, &:after
+      content: ""
+      display: block
+      position: absolute
+      transform-origin: 0 0
+  .border-bottom-1px
+    &:after
+      border-bottom: 1px solid #ebebeb
+      left: 0
+      bottom: 0
+      width: 100%
+      transform-origin: 0 bottom
+  .border-top-1px
+    &:before
+      border-top: 1px solid #ebebeb
+      left: 0
+      top: 0
+      width: 100%
+      transform-origin: 0 top
+  @media (-webkit-min-device-pixel-ratio: 2), (min-device-pixel-ratio: 2)
+    .border-top-1px
+      &:before
+        width: 200%
+        transform: scale(.5) translateZ(0)
+    .border-bottom-1px
+      &:after
+        width: 200%
+        transform: scale(.5) translateZ(0)
+
+  @media (-webkit-min-device-pixel-ratio: 3), (min-device-pixel-ratio: 3)
+    .border-top-1px
+      &:before
+        width: 300%
+        transform: scale(.333) translateZ(0)
+    .border-bottom-1px
+      &:after
+        width: 300%
+        transform: scale(.333) translateZ(0)
 
   .example-list
     display: flex
@@ -321,12 +355,7 @@
         display: flex
         padding: 0 16px
         .wheel
-          -ms-flex: 1 1 0.000000001px
-          -webkit-box-flex: 1
-          -webkit-flex: 1
           flex: 1
-          -webkit-flex-basis: 0.000000001px
-          flex-basis: 0.000000001px
           width: 1%
           height: 173px
           overflow: hidden

@@ -1,8 +1,11 @@
 {
   "name": "@better-scroll/scroll-bar",
-  "version": "2.0.5",
+  "version": "2.2.1",
   "description": "scrollbar is used to BetterScroll, which behaves like browser scrollbar",
-  "author": "huangyi <ustbhuangyi@gmail.com>",
+  "author": {
+    "name": "jizhi",
+    "email": "theniceangel@163.com"
+  },
   "main": "dist/scroll-bar.min.js",
   "module": "dist/scroll-bar.esm.js",
   "typings": "dist/types/index.d.ts",
@@ -27,7 +30,7 @@
     "directory": "packages/scroll-bar"
   },
   "dependencies": {
-    "@better-scroll/core": "^2.0.5"
+    "@better-scroll/core": "^2.2.1"
   },
   "gitHead": "f441227b6137d44ba0b44b97ed4cd49de9386130"
 }

@@ -26,9 +26,11 @@ const getPluginsSideBar = function (lang) {
       children: [
         'mouse-wheel',
         'observe-dom',
+        'observe-image',
         'pulldown',
         'pullup',
         'scroll-bar',
+        'indicators',
         'slide',
         'wheel',
         'zoom',

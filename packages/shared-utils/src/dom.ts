@@ -1,4 +1,4 @@
-import { inBrowser, isWeChatDevTools } from './env'
+import { inBrowser, isWeChatDevTools, supportsPassive } from './env'
 import { extend } from './lang'
 
 export type safeCSSStyleDeclaration = {
@@ -79,10 +79,13 @@ export function addEvent(
   fn: EventListenerOrEventListenerObject,
   capture?: AddEventListenerOptions
 ) {
-  el.addEventListener(type, fn, {
-    passive: false,
-    capture: !!capture,
-  })
+  const useCapture = supportsPassive
+    ? {
+        passive: false,
+        capture: !!capture,
+      }
+    : !!capture
+  el.addEventListener(type, fn, useCapture)
 }
 
 export function removeEvent(
@@ -150,6 +153,7 @@ export const eventTypeMap: {
   touchstart: number
   touchmove: number
   touchend: number
+  touchcancel: number
   mousedown: number
   mousemove: number
   mouseup: number
@@ -157,6 +161,7 @@ export const eventTypeMap: {
   touchstart: 1,
   touchmove: 1,
   touchend: 1,
+  touchcancel: 1,
 
   mousedown: 2,
   mousemove: 2,
@@ -315,4 +320,15 @@ export function removeClass(el: HTMLElement, className: string) {
 
   let reg = new RegExp('(^|\\s)' + className + '(\\s|$)', 'g')
   el.className = el.className.replace(reg, ' ')
+}
+
+export function HTMLCollectionToArray(el: HTMLCollection) {
+  return Array.prototype.slice.call(el, 0)
+}
+
+export function getClientSize(el: HTMLElement) {
+  return {
+    width: el.clientWidth,
+    height: el.clientHeight,
+  }
 }

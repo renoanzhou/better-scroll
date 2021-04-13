@@ -48,6 +48,7 @@
   const EVENT_SELECT = 'select'
   const EVENT_CANCEL = 'cancel'
   const EVENT_CHANGE = 'change'
+  const WHEEL_INDEX_CHANGED = 'wheelIndexChanged'
 
   const DATA = [
     {
@@ -103,22 +104,32 @@
     },
     methods: {
       _confirm() {
-        if (this._isMoving()) {
-          return
-        }
-        this.hide()
+        /*
+         * if bs is scrolling, force it stop at the nearest wheel-item
+         * or you can use 'restorePosition' method as the below
+        */
+        this.wheel.stop()
+        /*
+         * if bs is scrolling, restore it to the start position
+         * it is same with iOS picker and web Select element implementation
+         * supported at v2.1.0
+        */
+        // this.wheel.restorePosition()
 
-        const currentSelectedIndex = this.wheel.getSelectedIndex()
-        this.selectedIndex = currentSelectedIndex
-        this.selectedText = this.pickerData[this.selectedIndex].text
+        this.hide()
+        const currentSelectedIndex = this.selectedIndex = this.wheel.getSelectedIndex()
+        this.selectedText = `${this.pickerData[currentSelectedIndex].text}-${currentSelectedIndex}`
         this.$emit(EVENT_SELECT, currentSelectedIndex)
       },
       _cancel() {
+        /*
+         * if bs is scrolling, restore it to the start position
+         * it is same with iOS picker and web Select element implementation
+         * supported at v2.1.0
+        */
+        this.wheel.restorePosition()
         this.hide()
         this.$emit(EVENT_CANCEL)
-      },
-      _isMoving() {
-        return this.wheel.pending
       },
       show() {
         if (this.state === STATE_SHOW) {
@@ -131,20 +142,10 @@
             const wrapper = this.$refs.wheelWrapper.children[0]
             this._createWheel(wrapper)
           })
-        } else {
-          this.wheel.enable()
-          this.wheel.wheelTo(this.selectedIndex)
         }
       },
       hide() {
         this.state = STATE_HIDE
-        // if wheel is in animation, clear timer in it
-        this.wheel.disable()
-      },
-      refresh() {
-        this.$nextTick(() => {
-          this.wheel.refresh()
-        })
       },
       _createWheel(wheelWrapper) {
         if (!this.wheel) {
@@ -156,10 +157,15 @@
               wheelDisabledItemClass: 'wheel-disabled-item'
             },
             useTransition: false,
-            probeType: 2
+            probeType: 3
           })
+          // < v2.1.0
           this.wheel.on('scrollEnd', () => {
             this.$emit(EVENT_CHANGE, this.wheel.getSelectedIndex())
+          })
+          // v2.1.0, only when selectedIndex changed
+          this.wheel.on(WHEEL_INDEX_CHANGED, (index) => {
+            console.log(index)
           })
         } else {
           this.wheel.refresh()
@@ -177,6 +183,46 @@
     list-style none
     padding 0
 
+  .border-bottom-1px, .border-top-1px
+    position: relative
+    &:before, &:after
+      content: ""
+      display: block
+      position: absolute
+      transform-origin: 0 0
+  .border-bottom-1px
+    &:after
+      border-bottom: 1px solid #ebebeb
+      left: 0
+      bottom: 0
+      width: 100%
+      transform-origin: 0 bottom
+  .border-top-1px
+    &:before
+      border-top: 1px solid #ebebeb
+      left: 0
+      top: 0
+      width: 100%
+      transform-origin: 0 top
+  @media (-webkit-min-device-pixel-ratio: 2), (min-device-pixel-ratio: 2)
+    .border-top-1px
+      &:before
+        width: 200%
+        transform: scale(.5) translateZ(0)
+    .border-bottom-1px
+      &:after
+        width: 200%
+        transform: scale(.5) translateZ(0)
+
+  @media (-webkit-min-device-pixel-ratio: 3), (min-device-pixel-ratio: 3)
+    .border-top-1px
+      &:before
+        width: 300%
+        transform: scale(.333) translateZ(0)
+    .border-bottom-1px
+      &:after
+        width: 300%
+        transform: scale(.333) translateZ(0)
   .example-list
     display: flex
     justify-content: space-between
@@ -270,12 +316,7 @@
         display: flex
         padding: 0 16px
         .wheel
-          -ms-flex: 1 1 0.000000001px
-          -webkit-box-flex: 1
-          -webkit-flex: 1
           flex: 1
-          -webkit-flex-basis: 0.000000001px
-          flex-basis: 0.000000001px
           width: 1%
           height: 173px
           overflow: hidden

@@ -46,7 +46,7 @@ export class Behavior {
       'computeBoundary',
       'momentum',
       'end',
-      'ignoreHasScroll',
+      'ignoreHasScroll'
     ])
     this.refresh(content)
   }
@@ -57,7 +57,7 @@ export class Behavior {
     this.setDirection(Direction.Default)
   }
 
-  move(delta: number): number {
+  move(delta: number) {
     delta = this.hasScroll ? delta : 0
     this.setMovingDirection(delta)
     return this.performDampingAlgorithm(
@@ -84,7 +84,7 @@ export class Behavior {
         : Direction.Default
   }
 
-  performDampingAlgorithm(delta: number, dampingFactor: number) {
+  performDampingAlgorithm(delta: number, dampingFactor: number): number {
     let newPos = this.currentPos + delta
     // Slow down or stop if outside of the boundaries
     if (newPos > this.minScrollPos || newPos < this.maxScrollPos) {
@@ -106,7 +106,7 @@ export class Behavior {
       destination?: number
       duration?: number
     } = {
-      duration: 0,
+      duration: 0
     }
 
     const absDist = Math.abs(this.currentPos - this.startPos)
@@ -152,10 +152,12 @@ export class Behavior {
     const speed = Math.abs(distance) / time
 
     const { deceleration, swipeBounceTime, swipeTime } = options
+    const duration = Math.min(swipeTime, (speed * 2) / deceleration)
     const momentumData = {
-      destination: current + (speed / deceleration) * (distance < 0 ? -1 : 1),
-      duration: swipeTime,
-      rate: 15,
+      destination:
+        current + ((speed * speed) / deceleration) * (distance < 0 ? -1 : 1),
+      duration,
+      rate: 15
     }
 
     this.hooks.trigger(this.hooks.eventTypes.momentum, momentumData, distance)
@@ -183,7 +185,7 @@ export class Behavior {
   }
 
   updateDirection() {
-    const absDist = Math.round(this.currentPos) - this.absStartPos
+    const absDist = this.currentPos - this.absStartPos
     this.setDirection(absDist)
   }
 
@@ -191,9 +193,12 @@ export class Behavior {
     const { size, position } = this.options.rect
     const isWrapperStatic =
       window.getComputedStyle(this.wrapper, null).position === 'static'
+    // Force reflow
     const wrapperRect = getRect(this.wrapper)
-    this.wrapperSize = wrapperRect[size]
-
+    // use client is more fair than offset
+    this.wrapperSize = this.wrapper[
+      size === 'width' ? 'clientWidth' : 'clientHeight'
+    ]
     this.setContent(content)
     const contentRect = getRect(this.content)
     this.contentSize = contentRect[size]
@@ -205,7 +210,6 @@ export class Behavior {
     }
 
     this.computeBoundary()
-
     this.setDirection(Direction.Default)
   }
 
@@ -230,7 +234,7 @@ export class Behavior {
 
     const boundary: Boundary = {
       minScrollPos: 0,
-      maxScrollPos: this.wrapperSize - this.contentSize,
+      maxScrollPos: this.wrapperSize - this.contentSize
     }
     if (boundary.maxScrollPos < 0) {
       boundary.maxScrollPos -= this.relativeOffset
@@ -257,7 +261,7 @@ export class Behavior {
   }
 
   getCurrentPos() {
-    return Math.round(this.currentPos)
+    return this.currentPos
   }
 
   checkInBoundary() {
@@ -265,26 +269,24 @@ export class Behavior {
     const inBoundary = position === this.getCurrentPos()
     return {
       position,
-      inBoundary,
+      inBoundary
     }
   }
 
   // adjust position when out of boundary
   adjustPosition(pos: number) {
-    let roundPos = Math.round(pos)
-
     if (
       !this.hasScroll &&
       !this.hooks.trigger(this.hooks.eventTypes.ignoreHasScroll)
     ) {
-      roundPos = this.minScrollPos
-    } else if (roundPos > this.minScrollPos) {
-      roundPos = this.minScrollPos
-    } else if (roundPos < this.maxScrollPos) {
-      roundPos = this.maxScrollPos
+      pos = this.minScrollPos
+    } else if (pos > this.minScrollPos) {
+      pos = this.minScrollPos
+    } else if (pos < this.maxScrollPos) {
+      pos = this.maxScrollPos
     }
 
-    return roundPos
+    return pos
   }
 
   updateStartPos() {

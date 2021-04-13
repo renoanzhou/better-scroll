@@ -97,6 +97,10 @@ yarn add @better-scroll/slide
   在 loop 的场景下，slide-content 前后会多插入两个 Page，以便实现无缝衔接滚动的视觉效果。
   :::
 
+  :::danger 危险
+  slide-content 必须至少有一个 slide-page，如果只有一个 page，loop 的配置无效。
+  :::
+
 ## 示例
 
 - **横向轮播**
@@ -144,6 +148,21 @@ yarn add @better-scroll/slide
     <slide-vertical slot="demo"></slide-vertical>
   </demo>
 
+- **动态卡片轮播 <Badge text='2.1.0' />**
+
+  <demo qrcode-url="slide/dynamic">
+    <template slot="code-template">
+      <<< @/examples/vue/components/slide/dynamic.vue?template
+    </template>
+    <template slot="code-script">
+      <<< @/examples/vue/components/slide/dynamic.vue?script
+    </template>
+    <template slot="code-style">
+      <<< @/examples/vue/components/slide/dynamic.vue?style
+    </template>
+    <slide-dynamic slot="demo"></slide-dynamic>
+  </demo>
+
   ::: tip
   注意：当设置 `useTransition = true`时，可能在 iphone 某些系统上出现闪烁。你需要像上面 demo 中的代码一样，每个 `slide-page` 额外增加下面两个样式：
 
@@ -154,6 +173,30 @@ yarn add @better-scroll/slide
   :::
 
 ## slide 选项对象
+
+:::tip 提示
+当 slide 配置为 true 的时候，插件内部使用的是默认的插件选项对象。
+
+```js
+const bs = new BScroll('.wrapper', {
+  slide: true
+})
+
+// 相当于
+
+const bs = new BScroll('.wrapper', {
+  slide: {
+    loop: true,
+    threshold: 0.1,
+    speed: 400,
+    easing: ease.bounce,
+    listenFlick: true,
+    autoplay: true,
+    interval: 3000
+  }
+})
+```
+:::
 
 ### loop
 
@@ -222,6 +265,25 @@ yarn add @better-scroll/slide
 
 ## 实例方法
 
+:::tip 提示
+以下方法皆已代理至 BetterScroll 实例，例如：
+
+```js
+import BScroll from '@better-scroll/core'
+import Slide from '@better-scroll/slide'
+
+BScroll.use(Slide)
+
+const bs = new BScroll('.bs-wrapper', {
+  slide: true
+})
+
+bs.next()
+bs.prev()
+bs.getCurrentPage()
+```
+:::
+
 ### next([time], [easing])
 
   - **参数**：
@@ -234,8 +296,6 @@ yarn add @better-scroll/slide
     }
     ```
 
-  - **返回值**：无
-
   滚动到下一张。
 
 ### prev([time], [easing])
@@ -243,8 +303,6 @@ yarn add @better-scroll/slide
   - **参数**：
     - `{ number } time<可选>`：动画时长，默认是 `options.speed`
     - `{ EaseItem } easing<可选>`：缓动效果配置，参考 [ease.ts](https://github.com/ustbhuangyi/better-scroll/blob/dev/packages/shared-utils/src/ease.ts)，默认是 `bounce` 效果
-
-  - **返回值**：无
 
   滚动到上一张。
 
@@ -256,13 +314,9 @@ yarn add @better-scroll/slide
     - `{ number } time<可选>`：动画时长，默认是 `options.speed`
     - `{ EaseItem } easing<可选>`：缓动效果配置，参考 [ease.ts](https://github.com/ustbhuangyi/better-scroll/blob/dev/packages/shared-utils/src/ease.ts)，默认是 `bounce` 效果
 
-  - **返回值**：无
-
   滚动到指定的 Page 位置。
 
 ### getCurrentPage()
-
-  - **参数**： 无
 
   - **返回值**： `page`
   ```typescript
@@ -279,17 +333,9 @@ yarn add @better-scroll/slide
 
 ### startPlay()
 
-  - **参数**：无
-
-  - **返回值**：无
-
   如果开启了 loop 的配置，手动开启循环播放。
 
 ### pausePlay()
-
-  - **参数**：无
-
-  - **返回值**：无
 
   如果开启了 loop 的配置，手动关闭循环播放。
 
@@ -309,7 +355,7 @@ yarn add @better-scroll/slide
 
   在 banner 展示中，常常伴随着一个 dot 图例，来指示当前 banner 是第几页，例如前面“横向轮播图”的示例。当用户拖动 banner 出现下一张时，我们希望下面的 dot 图例会同步变换。如下图
 
-  <img :src="$withBase('/assets/images/slide-pageindex.png')" style="maxHeight: 200px" alt="banner示例图">
+  <img data-zoomable :src="$withBase('/assets/images/slide-pageindex.png')" style="maxHeight: 200px" alt="banner示例图">
 
   通过监听 `slideWillChange` 事件，可以实现该效果。代码如下：
 
@@ -332,3 +378,25 @@ yarn add @better-scroll/slide
     })
   ```
 
+### slidePageChanged <Badge text='2.1.0' />
+
+  - **参数**：page 对象
+    - `{ number } x`：当前页面的 x 坐标值
+    - `{ number } y`：当前页面的 y 坐标值
+    - `{ number } pageX`：当前横向页面的索引值，下标从 0 开始
+    - `{ number } pageY`：当前纵向页面的索引值，下标从 0 开始
+
+  - **触发时机**：当 slide 切换 page 之后触发
+
+  ```js
+    const slide = new BScroll(this.$refs.slide, {
+      scrollX: true,
+      scrollY: false,
+      slide: true,
+      momentum: false,
+      bounce: false
+    })
+    slide.on('slidePageChanged', (page) => {
+      currentPageIndex = page.pageX
+    })
+  ```

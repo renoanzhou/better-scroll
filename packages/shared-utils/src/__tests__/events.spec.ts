@@ -60,8 +60,39 @@ describe('events', () => {
 
     it('should keep chainable call when invoking off()', () => {
       const ret = eventEmitter.off('test1', () => {})
+      const ret2 = eventEmitter.off()
 
       expect(ret).toBe(eventEmitter)
+      expect(ret2).toBe(eventEmitter)
+    })
+
+    it('should support cancelable callback', () => {
+      const mockHandler1 = jest.fn().mockImplementation(() => true)
+      const mockHandler2 = jest.fn()
+      eventEmitter.on('test1', mockHandler1)
+      eventEmitter.on('test1', mockHandler2)
+
+      const ret = eventEmitter.trigger('test1')
+      expect(mockHandler1).toBeCalled()
+      expect(mockHandler2).not.toBeCalled()
+      expect(ret).toBe(true)
+    })
+
+    it('should support cancelable once callback', () => {
+      const mockHandler1 = jest.fn()
+      const mockHandler2 = jest.fn().mockImplementation(() => true)
+      const mockHandler3 = jest.fn()
+
+      eventEmitter.on('test1', mockHandler1)
+      eventEmitter.once('test1', mockHandler2)
+      eventEmitter.on('test1', mockHandler3)
+
+      const ret = eventEmitter.trigger('test1')
+
+      expect(mockHandler1).toBeCalled()
+      expect(mockHandler2).toBeCalled()
+      expect(mockHandler3).not.toBeCalled()
+      expect(ret).toBe(true)
     })
   })
 

@@ -7,23 +7,40 @@ import {
 } from '@better-scroll/shared-utils'
 import Base from './Base'
 import { TranslaterPoint } from '../translater'
+import { isValidPostion } from '../utils/compat'
 
 export default class Transition extends Base {
-  startProbe() {
+  startProbe(startPoint: TranslaterPoint, endPoint: TranslaterPoint) {
+    let prePos = startPoint
     const probe = () => {
       let pos = this.translater.getComputedPosition()
-      this.hooks.trigger(this.hooks.eventTypes.move, pos)
-      // transition ends should dispatch end hook.
-      // but when call stop() in animation.hooks.move or bs.scroll
-      // should not dispatch end hook, because forceStop hook will do this.
-      if (!this.pending && !this.forceStopped) {
-        this.hooks.trigger(this.hooks.eventTypes.end, pos)
+
+      if (isValidPostion(startPoint, endPoint, pos, prePos)) {
+        this.hooks.trigger(this.hooks.eventTypes.move, pos)
       }
+      // call bs.stop() should not dispatch end hook again.
+      // forceStop hook will do this.
+      /* istanbul ignore if  */
+      if (!this.pending) {
+        if (this.callStopWhenPending) {
+          this.callStopWhenPending = false
+        } else {
+          // transition ends should dispatch end hook.
+          this.hooks.trigger(this.hooks.eventTypes.end, pos)
+        }
+      }
+      prePos = pos
 
       if (this.pending) {
         this.timer = requestAnimationFrame(probe)
       }
     }
+    // when manually call bs.stop(), then bs.scrollTo()
+    // we should reset callStopWhenPending to dispatch end hook
+    if (this.callStopWhenPending) {
+      this.setCallStop(false)
+    }
+
     cancelAnimationFrame(this.timer)
     probe()
   }
@@ -54,8 +71,10 @@ export default class Transition extends Base {
     this.transitionTime(time)
     this.translate(endPoint)
 
-    if (time && this.options.probeType === Probe.Realtime) {
-      this.startProbe()
+    const isRealtimeProbeType = this.options.probeType === Probe.Realtime
+
+    if (time && isRealtimeProbeType) {
+      this.startProbe(startPoint, endPoint)
     }
 
     // if we change content's transformY in a tick
@@ -64,8 +83,9 @@ export default class Transition extends Base {
     // so we forceupdate by reflow
     if (!time) {
       this._reflow = this.content.offsetHeight
-
-      this.hooks.trigger(this.hooks.eventTypes.move, endPoint)
+      if (isRealtimeProbeType) {
+        this.hooks.trigger(this.hooks.eventTypes.move, endPoint)
+      }
       this.hooks.trigger(this.hooks.eventTypes.end, endPoint)
     }
   }
@@ -73,19 +93,17 @@ export default class Transition extends Base {
   doStop(): boolean {
     const pending = this.pending
     this.setForceStopped(false)
+    this.setCallStop(false)
     // still in transition
     if (pending) {
       this.setPending(false)
       cancelAnimationFrame(this.timer)
       const { x, y } = this.translater.getComputedPosition()
+
       this.transitionTime()
       this.translate({ x, y })
       this.setForceStopped(true)
-
-      if (this.hooks.trigger(this.hooks.eventTypes.beforeForceStop, { x, y })) {
-        return true
-      }
-
+      this.setCallStop(true)
       this.hooks.trigger(this.hooks.eventTypes.forceStop, { x, y })
     }
     return pending
@@ -95,7 +113,6 @@ export default class Transition extends Base {
     const stopFromTransition = this.doStop()
     if (stopFromTransition) {
       this.hooks.trigger(this.hooks.eventTypes.callStop)
-      this.setForceStopped(false)
     }
   }
 }

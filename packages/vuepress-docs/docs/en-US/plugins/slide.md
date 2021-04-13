@@ -97,6 +97,10 @@ In general, the layout of BetterScroll's slide is as follows:
   In the loop scenario, two more pages will be inserted before and after the slide-content to achieve the visual effect of seamless scrolling.
   :::
 
+  :::danger
+  The slide-content must have at least one slide-page, if there is only one page, the loop configuration is invalid
+  :::
+
 ## Demo
 
 - **Horizontal Slide**
@@ -144,6 +148,21 @@ In general, the layout of BetterScroll's slide is as follows:
     <slide-vertical slot="demo"></slide-vertical>
   </demo>
 
+- **Dynamic Slide <Badge text='2.1.0' />**
+
+  <demo qrcode-url="slide/dynamic">
+    <template slot="code-template">
+      <<< @/examples/vue/components/slide/dynamic.vue?template
+    </template>
+    <template slot="code-script">
+      <<< @/examples/vue/components/slide/dynamic.vue?script
+    </template>
+    <template slot="code-style">
+      <<< @/examples/vue/components/slide/dynamic.vue?style
+    </template>
+    <slide-dynamic slot="demo"></slide-dynamic>
+  </demo>
+
   ::: tip
   Note: When setting `useTransition = true`, there may be flickering on some iPhone systems. You need to add the following two additional styles to each `slide-page` like the code in the above demo:
 
@@ -154,6 +173,30 @@ In general, the layout of BetterScroll's slide is as follows:
   :::
 
 ## slide options
+
+:::tip
+When `slide` is configured as `true`, the plugin uses the default plugin option.
+
+```js
+const bs = new BScroll('.wrapper', {
+  slide: true
+})
+
+// equals
+
+const bs = new BScroll('.wrapper', {
+  slide: {
+    loop: true,
+    threshold: 0.1,
+    speed: 400,
+    easing: ease.bounce,
+    listenFlick: true,
+    autoplay: true,
+    interval: 3000
+  }
+})
+```
+:::
 
 ### loop
 
@@ -222,6 +265,25 @@ In general, the layout of BetterScroll's slide is as follows:
 
 ## Instance Methods
 
+:::tip
+All methods are proxied to BetterScroll instance, for example:
+
+```js
+import BScroll from '@better-scroll/core'
+import Slide from '@better-scroll/slide'
+
+BScroll.use(Slide)
+
+const bs = new BScroll('.bs-wrapper', {
+  slide: true
+})
+
+bs.next()
+bs.prev()
+bs.getCurrentPage()
+```
+:::
+
 ### next([time], [easing])
 
   - **Arguments**:
@@ -234,8 +296,6 @@ In general, the layout of BetterScroll's slide is as follows:
     }
     ```
 
-  - **Returns**: none
-
   Scroll to the next page.
 
 ### prev([time], [easing])
@@ -243,8 +303,6 @@ In general, the layout of BetterScroll's slide is as follows:
   - **Arguments**:
     - `{ number } time<Optional>`: Animation duration, default is `options.speed`
     - `{ EaseItem } easing<Optional>`: Ease effect configuration, refer to [ease.ts](https://github.com/ustbhuangyi/better-scroll/blob/dev/packages/shared-utils/src/ease.ts), the default is `bounce` effect
-
-  - **Returns**: none
 
   Scroll to the previous page.
 
@@ -256,13 +314,9 @@ In general, the layout of BetterScroll's slide is as follows:
     - `{ number } time<Optional>`: Animation duration, default is `options.speed`
     - `{ EaseItem } easing<Optional>`: Ease effect configuration, refer to [ease.ts](https://github.com/ustbhuangyi/better-scroll/blob/dev/packages/shared-utils/src/ease.ts), the default is `bounce` effect
 
-  - **Returns**: none
-
   Scroll to the specified page.
 
 ### getCurrentPage()
-
-  - **Arguments**: none
 
   - **Returns**: `page`
   ```typescript
@@ -279,17 +333,9 @@ In general, the layout of BetterScroll's slide is as follows:
 
 ### startPlay()
 
-  - **Arguments**: none
-
-  - **Returns**: none
-
   If the loop configuration is turned on, manually turn on autoplay.
 
 ### pausePlay()
-
-  - **Arguments**: none
-
-  - **Returns**: none
 
   If the loop configuration is turned on, manually turn off autoplay.
 
@@ -309,7 +355,7 @@ In general, the layout of BetterScroll's slide is as follows:
 
   In the banner, it is often accompanied by a dot legend to indicate which page the current banner is on, such as the "Horizontal Slide" example above. When the user drags the banner to the next one, we hope the dot legend below will change synchronously. As shown below
 
-  <img :src="$withBase('/assets/images/slide-pageindex.png')" style="maxHeight: 200px" alt="banner示例图">
+  <img data-zoomable :src="$withBase('/assets/images/slide-pageindex.png')" style="maxHeight: 200px" alt="banner示例图">
 
   This effect can be achieved by register the `slideWillChange` event. code show as below:
 
@@ -321,10 +367,8 @@ In general, the layout of BetterScroll's slide is as follows:
       slide: {
         threshold: 100
       },
-      useTransition: true,
       momentum: false,
       bounce: false,
-      stopPropagation: true,
       probeType: 2
     })
     slide.on('slideWillChange', (page) => {
@@ -332,3 +376,25 @@ In general, the layout of BetterScroll's slide is as follows:
     })
   ```
 
+### slidePageChanged <Badge text='2.1.0' />
+
+  - **Arguments**: `page` object
+    - `{ number } x`: The x value of the current page
+    - `{ number } y`: The y value of the current page
+    - `{ number } pageX`: The index value of the horizontal page, the subscript starts from 0
+    - `{ number } pageY`: The index value of the vertical page, the subscript starts from 0
+
+  - **Trigger timing**: When slide page has changed
+
+  ```js
+    const slide = new BScroll(this.$refs.slide, {
+      scrollX: true,
+      scrollY: false,
+      slide: true,
+      momentum: false,
+      bounce: false
+    })
+    slide.on('slidePageChanged', (page) => {
+      currentPageIndex = page.pageX
+    })
+  ```
